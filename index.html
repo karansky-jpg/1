@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Digital Menu & Order Management System</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-gray-50 font-sans text-gray-800 antialiased">
+
+  <div id="selection-screen" class="hidden min-h-screen flex flex-col justify-center items-center p-4 bg-gradient-to-br from-orange-500 to-amber-600">
+    <div class="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-md text-center">
+      <h1 class="text-3xl font-extrabold text-gray-900 mb-2">Welcome to Our Hotel</h1>
+      <p class="text-gray-600 mb-6">Please select your Table or Room number to view the menu</p>
+      
+      <div class="mb-6">
+        <label class="block text-left text-sm font-bold text-gray-700 mb-2">Tables (Dine-in)</label>
+        <div class="grid grid-cols-5 gap-2" id="tables-grid"></div>
+      </div>
+
+      <div class="mb-6">
+        <label class="block text-left text-sm font-bold text-gray-700 mb-2">Rooms (Stay-in)</label>
+        <div class="grid grid-cols-5 gap-2" id="rooms-grid"></div>
+      </div>
+
+      <button id="confirm-selection-btn" disabled class="w-full bg-gray-400 text-white font-bold py-3 px-4 rounded-xl cursor-not-allowed transition duration-200">
+        Proceed to Menu
+      </button>
+    </div>
+  </div>
+
+  <div id="customer-screen" class="hidden min-h-screen flex flex-col bg-gray-100">
+    <header class="bg-white shadow-md sticky top-0 z-50 px-4 py-3 flex justify-between items-center">
+      <div>
+        <span id="customer-location-badge" class="bg-orange-100 text-orange-700 text-xs font-bold px-2.5 py-1 rounded-full"></span>
+        <button id="change-location-btn" class="text-xs text-blue-600 ml-2 underline">Change</button>
+      </div>
+      <div class="flex items-center gap-4">
+        <div class="text-xs text-gray-500 font-mono"><i class="fa-solid fa-clock mr-1"></i>Session: <span id="session-timer">00:00</span></div>
+        <button id="view-cart-btn" class="relative bg-orange-500 text-white p-2 rounded-full shadow">
+          <i class="fa-solid fa-cart-shopping"></i>
+          <span id="cart-count" class="absolute -top-2 -right-2 bg-red-600 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center font-bold">0</span>
+        </button>
+      </div>
+    </header>
+
+    <main class="flex-1 p-4 pb-24 max-w-2xl mx-auto w-full">
+      <div class="mb-4">
+        <h2 class="text-2xl font-bold text-gray-900">Delicious Menu</h2>
+        <p class="text-sm text-gray-500">Fresh and hygienic food delivered straight to you.</p>
+      </div>
+
+      <div id="menu-items-container" class="space-y-4">
+        </div>
+    </main>
+
+    <footer class="fixed bottom-0 left-0 right-0 bg-white shadow-lg border-t border-gray-200 p-4 flex gap-4 max-w-2xl mx-auto rounded-t-xl">
+      <button id="ask-bill-btn" class="flex-1 bg-red-600 text-white font-bold py-3 px-4 rounded-xl flex items-center justify-center gap-2 shadow hover:bg-red-700 transition">
+        <i class="fa-solid fa-file-invoice-dollar"></i> Ask for Bill
+      </button>
+    </footer>
+
+    <div id="cart-modal" class="hidden fixed inset-0 bg-black/50 z-50 flex items-end justify-center p-4">
+      <div class="bg-white w-full max-w-md rounded-t-2xl shadow-xl max-h-[80vh] flex flex-col p-6 animate-slide-up">
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="text-xl font-bold">Your Cart</h3>
+          <button id="close-cart-btn" class="text-gray-500 text-xl"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div id="cart-items-list" class="flex-1 overflow-y-auto space-y-3 pr-1">
+          </div>
+        <div class="border-t pt-4 mt-4">
+          <div class="flex justify-between text-lg font-bold mb-4">
+            <span>Total Value:</span>
+            <span>₹<span id="cart-total-price">0</span></span>
+          </div>
+          <p class="text-xs text-gray-400 mb-2">*Taxes (10% GST) will be added in final bill</p>
+          <button id="place-order-btn" class="w-full bg-green-600 text-white font-bold py-3 rounded-xl hover:bg-green-700 transition">
+            Place Order Now
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="admin-screen" class="hidden min-h-screen bg-gray-950 text-gray-100 p-4 lg:p-6">
+    <header class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-gray-800 pb-4 mb-6">
+      <div>
+        <h1 class="text-2xl font-black text-amber-500 tracking-wide uppercase"><i class="fa-solid fa-utensils mr-2"></i>Kitchen Dashboard & Analytics</h1>
+        <p class="text-gray-400 text-sm">Real-time Order Management Panel</p>
+      </div>
+      <button id="clear-history-btn" class="bg-red-900/40 border border-red-700 text-red-400 px-4 py-2 rounded-lg text-sm font-semibold hover:bg-red-900/60 transition">
+        <i class="fa-solid fa-trash-can mr-2"></i> Clear Session Logs / History
+      </button>
+    </header>
+
+    <section class="mb-8">
+      <h2 class="text-lg font-bold text-gray-300 mb-3 uppercase tracking-wider text-xs">Live Status Indicators</h2>
+      <div id="admin-status-grid" class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-10 gap-3">
+        </div>
+    </section>
+
+    <section class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div class="lg:col-span-2 bg-gray-900 border border-gray-800 rounded-xl p-4">
+        <h2 class="text-lg font-bold mb-4 flex items-center gap-2 text-amber-400">
+          <i class="fa-solid fa-bell animate-pulse"></i> Active Live Orders
+        </h2>
+        <div id="admin-orders-list" class="space-y-4 max-h-[60vh] overflow-y-auto pr-2">
+          </div>
+      </div>
+
+      <div class="bg-gray-900 border border-gray-800 rounded-xl p-4">
+        <h2 class="text-lg font-bold mb-4 text-emerald-400 flex items-center gap-2">
+          <i class="fa-solid fa-calculator"></i> Active Billing Requests
+        </h2>
+        <div id="admin-billing-list" class="space-y-4 max-h-[60vh] overflow-y-auto pr-2">
+          </div>
+      </div>
+    </section>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getDatabase, ref, set, push, onValue, update, remove } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+    // Your Firebase Config
+    const firebaseConfig = {
+      apiKey: "AIzaSyAHnlNbYTolJ0K0AdqUjA0G8sGjRrNJV9M",
+      authDomain: "hotel-3afed.firebaseapp.com",
+      projectId: "hotel-3afed",
+      storageBucket: "hotel-3afed.firebasestorage.app",
+      messagingSenderId: "892469378510",
+      appId: "1:892469378510:web:90122404574e3e19e27f9f"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const database = getDatabase(app);
+
+    // Initial Mock Menu Array (Google Sheets format blueprint fallback)
+    const mockMenu = [
+      { id: 1, name: "Paneer Tikka Masala", price: 240, category: "Main Course", type: "Veg" },
+      { id: 2, name: "Veg Hakka Noodles", price: 180, category: "Chinese", type: "Veg" },
+      { id: 3, name: "Chicken Butter Masala", price: 320, category: "Main Course", type: "Non-Veg" },
+      { id: 4, name: "Tandoori Roti", price: 25, category: "Breads", type: "Veg" },
+      { id: 5, name: "Crispy Spring Rolls", price: 150, category: "Starters", type: "Veg" }
+    ];
+
+    // App State Variables
+    let selectedLocation = null; // Stores e.g., "T3" or "R5"
+    let cart = [];
+    let sessionStartTime = null;
+
+    // Elements
+    const selectionScreen = document.getElementById('selection-screen');
+    const customerScreen = document.getElementById('customer-screen');
+    const adminScreen = document.getElementById('admin-screen');
+
+    // Generate Layout Grids
+    const locationsList = [];
+    for(let i=1; i<=10; i++) locationsList.push(`T${i}`);
+    for(let i=1; i<=10; i++) locationsList.push(`R${i}`);
+
+    // Initial Screen Router Logic based on URL params
+    function initApp() {
+      const urlParams = new URLSearchParams(window.location.search);
+      if (urlParams.get('admin') === 'true') {
+        showAdminPanel();
+      } else {
+        // Customer flow
+        const savedLoc = localStorage.getItem('hotel_loc_session');
+        const savedTime = localStorage.getItem('hotel_session_start');
+        
+        if (savedLoc && savedTime) {
+          selectedLocation = savedLoc;
+          sessionStartTime = parseInt(savedTime);
+          showCustomerMenu();
+        } else {
+          showSelectionScreen();
+        }
+      }
+    }
+
+    // --- SELECTION INTERFACE LOGIC ---
+    function showSelectionScreen() {
+      selectionScreen.classList.remove('hidden');
+      customerScreen.classList.add('hidden');
+      adminScreen.classList.add('hidden');
+
+      const tGrid = document.getElementById('tables-grid');
+      const rGrid = document.getElementById('rooms-grid');
+      tGrid.innerHTML = ''; rGrid.innerHTML = '';
+
+      locationsList.forEach(loc => {
+        const btn = document.createElement('button');
+        btn.innerText = loc;
+        btn.className = "bg-gray-100 hover:bg-orange-200 text-gray-800 font-bold py-3 rounded-lg border transition text-sm shadow-sm";
+        btn.onclick = () => {
+          document.querySelectorAll('#tables-grid button, #rooms-grid button').forEach(b => b.classList.remove('bg-orange-500', 'text-white', 'border-orange-600'));
+          btn.classList.add('bg-orange-500', 'text-white', 'border-orange-600');
+          selectedLocation = loc;
+          const confirmBtn = document.getElementById('confirm-selection-btn');
+          confirmBtn.disabled = false;
+          confirmBtn.className = "w-full bg-orange-600 hover:bg-orange-700 text-white font-bold py-3 px-4 rounded-xl transition duration-200 shadow-md";
+        };
+        if(loc.startsWith('T')) tGrid.appendChild(btn);
+        else rGrid.appendChild(btn);
+      });
+    }
+
+    document.getElementById('confirm-selection-btn').onclick = () => {
+      if(!selectedLocation) return;
+      sessionStartTime = Date.now();
+      localStorage.setItem('hotel_loc_session', selectedLocation);
+      localStorage.setItem('hotel_session_start', sessionStartTime);
+      
+      // Update Real-time Active status in Firebase
+      set(ref(database, 'sessions/' + selectedLocation), {
+        status: 'GREEN',
+        startTime: sessionStartTime,
+        lastActive: Date.now()
+      });
+
+      showCustomerMenu();
+    };
+
+    // --- CUSTOMER INTERFACE LOGIC ---
+    function showCustomerMenu() {
+      selectionScreen.classList.add('hidden');
+      customerScreen.classList.remove('hidden');
+      
+      document.getElementById('customer-location-badge').innerText = `Location: ${selectedLocation}`;
+      renderMenu(mockMenu);
+      startTimer();
+      loadGoogleSheetMenu(); // Triggers continuous sheet integration trigger asynchronously
+    }
+
+    document.getElementById('change-location-btn').onclick = () => {
+      if(confirm("Are you sure you want to change your table/room or clear current view?")){
+        if(selectedLocation) {
+          remove(ref(database, 'sessions/' + selectedLocation));
+        }
+        localStorage.clear();
+        cart = [];
+        updateCartBadge();
+        showSelectionScreen();
+      }
+    };
+
+    function startTimer() {
+      setInterval(() => {
+        if(!sessionStartTime) return;
+        const diff = Date.now() - sessionStartTime;
+        const mins = Math.floor(diff / 60000).toString().padStart(2, '0');
+        const secs = Math.floor((diff % 60000) / 1000).toString().padStart(2, '0');
+        document.getElementById('session-timer').innerText = `${mins}:${secs}`;
+      }, 1000);
+    }
+
+    function renderMenu(items) {
+      const container = document.getElementById('menu-items-container');
+      container.innerHTML = '';
+      items.forEach(item => {
+        const card = document.createElement('div');
+        card.className = "bg-white p-4 rounded-xl shadow-sm flex justify-between items-center border border-gray-100";
+        card.innerHTML = `
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="text-xs font-bold px-2 py-0.5 rounded ${item.type === 'Veg' ? 'bg-green-100 text-green-700':'bg-red-100 text-red-700'}">${item.type}</span>
+              <span class="text-xs text-gray-400">${item.category}</span>
+            </div>
+            <h4 class="font-bold text-gray-800 text-lg mt-1">${item.name}</h4>
+            <p class="text-orange-600 font-extrabold mt-0.5">₹${item.price}</p>
+          </div>
+          <button class="bg-orange-50 hover:bg-orange-100 text-orange-600 border border-orange-200 font-bold py-2 px-4 rounded-xl transition flex items-center gap-1 text-sm add-to-cart-btn" data-id="${item.id}">
+            <i class="fa-solid fa-plus text-xs"></i> Add
+          </button>
+        `;
+        container.appendChild(card);
+      });
+
+      // Bind buttons
+      container.querySelectorAll('.add-to-cart-btn').forEach(btn => {
+        btn.onclick = () => {
+          const id = parseInt(btn.getAttribute('data-id'));
+          const targetItem = items.find(i => i.id === id);
+          addToCart(targetItem);
+        };
+      });
+    }
+
+    function addToCart(item) {
+      const existing = cart.find(c => c.id === item.id);
+      if(existing) {
+        existing.qty++;
+      } else {
+        cart.push({...item, qty: 1});
+      }
+      updateCartBadge();
+    }
+
+    function updateCartBadge() {
+      const count = cart.reduce((acc, c) => acc + c.qty, 0);
+      document.getElementById('cart-count').innerText = count;
+    }
+
+    // Modal view cart
+    document.getElementById('view-cart-btn').onclick = () => {
+      const list = document.getElementById('cart-items-list');
+      list.innerHTML = '';
+      let total = 0;
+
+      if(cart.length === 0) {
+        list.innerHTML = `<p class="text-center text-gray-400 py-6">Your cart is completely empty.</p>`;
+      } else {
+        cart.forEach(item => {
+          total += item.price * item.qty;
+          const div = document.createElement('div');
+          div.className = "flex justify-between items-center border-b pb-2";
+          div.innerHTML = `
+            <div>
+              <p class="font-bold text-sm">${item.name}</p>
+              <p class="text-xs text-gray-500">₹${item.price} x ${item.qty}</p>
+            </div>
+            <div class="flex items-center gap-2">
+              <button class="text-gray-500 border w-6 h-6 rounded flex items-center justify-center font-bold text-xs btn-minus" data-id="${item.id}">-</button>
+              <span class="text-sm font-bold">${item.qty}</span>
+              <button class="text-gray-500 border w-6 h-6 rounded flex items-center justify-center font-bold text-xs btn-plus" data-id="${item.id}">+</button>
+            </div>
+          `;
+          list.appendChild(div);
+        });
+      }
+
+      document.getElementById('cart-total-price').innerText = total;
+      
+      // Bind cart dynamic adjustments
+      list.querySelectorAll('.btn-plus').forEach(b => {
+        b.onclick = () => {
+          const id = parseInt(b.getAttribute('data-id'));
+          cart.find(c => c.id === id).qty++;
+          updateCartBadge();
+          document.getElementById('view-cart-btn').click();
+        };
+      });
+      list.querySelectorAll('.btn-minus').forEach(b => {
+        b.onclick = () => {
+          const id = parseInt(b.getAttribute('data-id'));
+          const index = cart.findIndex(c => c.id === id);
+          if(cart[index].qty > 1) cart[index].qty--;
+          else cart.splice(index, 1);
+          updateCartBadge();
+          document.getElementById('view-cart-btn').click();
+        };
+      });
+
+      document.getElementById('cart-modal').classList.remove('hidden');
+    };
+
+    document.getElementById('close-cart-btn').onclick = () => {
+      document.getElementById('cart-modal').classList.add('hidden');
+    };
+
+    // Submit / Place Order
+    document.getElementById('place-order-btn').onclick = () => {
+      if(cart.length === 0) return alert("Cart is empty!");
+      
+      const orderRef = ref(database, 'orders');
+      const newOrder = push(orderRef);
+      
+      set(newOrder, {
+        location: selectedLocation,
+        items: cart,
+        status: 'Pending',
+        timestamp: Date.now()
+      }).then(() => {
+        // Change Session Color State to YELLOW
+        update(ref(database, 'sessions/' + selectedLocation), {
+          status: 'YELLOW'
+        });
+        alert("Your order has been sent to the Kitchen successfully!");
+        cart = [];
+        updateCartBadge();
+        document.getElementById('cart-modal').classList.add('hidden');
+      });
+    };
+
+    // Ask For Bill Action
+    document.getElementById('ask-bill-btn').onclick = () => {
+      if(confirm("Do you want to request your final bill item statement?")) {
+        update(ref(database, 'sessions/' + selectedLocation), {
+          status: 'RED',
+          billRequested: true
+        }).then(() => {
+          alert("Waiter is arriving with your calculations shortly.");
+        });
+      }
+    };
+
+
+    // --- 7. GOOGLE SHEETS INTEGRATION BLUEPRINT TEMPLATE ---
+    function loadGoogleSheetMenu() {
+      // NOTE: Replace this mock URL with your Google Apps Script generated API Web App endpoint link
+      const appsScriptAPIUrl = "https://script.google.com/macros/s/YOUR_DEPLOYED_WEBAPP_ID/exec";
+      
+      // Dynamic fetch template wrapper execution code
+      /*
+      fetch(appsScriptAPIUrl)
+        .then(res => res.json())
+        .then(data => {
+           if(data && data.length > 0) {
+              renderMenu(data); // Re-renders dynamically from Google Sheet array seamlessly
+           }
+        }).catch(err => console.log("Google sheets sync fallback actively utilizing default mock structured menu array"));
+      */
+    }
+
+
+    // --- 4. ADMIN & KITCHEN PANEL INTERFACE LOGIC ---
+    function showAdminPanel() {
+      adminScreen.classList.remove('hidden');
+      selectionScreen.classList.add('hidden');
+      customerScreen.classList.add('hidden');
+
+      // Create Admin Monitor Indicators Grid
+      const statusGrid = document.getElementById('admin-status-grid');
+      statusGrid.innerHTML = '';
+      locationsList.forEach(loc => {
+        const div = document.createElement('div');
+        div.id = `indicator-${loc}`;
+        div.className = "bg-gray-900 border border-gray-800 rounded-xl p-3 text-center transition flex flex-col justify-center items-center gap-1 shadow";
+        div.innerHTML = `
+          <span class="text-sm font-extrabold tracking-wider text-gray-300">${loc}</span>
+          <span class="w-3 h-3 rounded-full bg-gray-700 animate-pulse shadow-sm block transition status-dot"></span>
+        `;
+        statusGrid.appendChild(div);
+      });
+
+      // Synchronize Live Firebase Connections State
+      onValue(ref(database, 'sessions'), (snapshot) => {
+        const sessions = snapshot.val() || {};
+        // Reset all dots to gray default first
+        locationsList.forEach(loc => {
+          const dot = document.querySelector(`#indicator-${loc} .status-dot`);
+          if(dot) dot.className = "w-3 h-3 rounded-full bg-gray-700 shadow-sm block status-dot";
+        });
+        
+        // Loop active states
+        Object.keys(sessions).forEach(loc => {
+          const session = sessions[loc];
+          const dot = document.querySelector(`#indicator-${loc} .status-dot`);
+          if(dot) {
+            if(session.status === 'GREEN') dot.className = "w-3 h-3 rounded-full bg-green-500 shadow-[0_0_10px_rgba(34,197,94,0.8)] block status-dot animate-pulse";
+            if(session.status === 'YELLOW') dot.className = "w-3 h-3 rounded-full bg-yellow-500 shadow-[0_0_10px_rgba(234,179,8,0.8)] block status-dot animate-pulse";
+            if(session.status === 'RED') dot.className = "w-3 h-3 rounded-full bg-red-500 shadow-[0_0_10px_rgba(239,68,68,0.8)] block status-dot animate-pulse";
+          }
+        });
+
+        // Re-calculate Live Aggregated Billing Column
+        generateBillingDesk(sessions);
+      });
+
+      // Synchronize Live Processing Orders List
+      onValue(ref(database, 'orders'), (snapshot) => {
+        const ordersData = snapshot.val() || {};
+        const container = document.getElementById('admin-orders-list');
+        container.innerHTML = '';
+
+        const activeOrders = Object.keys(ordersData).map(id => ({id, ...ordersData[id]}))
+                                   .filter(o => o.status !== 'Served');
+
+        if(activeOrders.length === 0) {
+          container.innerHTML = `<p class="text-gray-500 text-sm italic py-4 text-center">No active processing orders right now.</p>`;
+          return;
+        }
+
+        activeOrders.forEach(order => {
+          const div = document.createElement('div');
+          div.className = "bg-gray-950 border border-gray-800 rounded-xl p-4 space-y-3 shadow-inner";
+          
+          let itemsSummary = '';
+          order.items.forEach(i => {
+            itemsSummary += `<li class="text-sm text-gray-300 font-mono flex justify-between"><span>• ${i.name}</span> <span class="text-amber-500">x${i.qty}</span></li>`;
+          });
+
+          div.innerHTML = `
+            <div class="flex justify-between items-center border-b border-gray-800 pb-2">
+              <span class="text-amber-400 font-black tracking-wide text-md">${order.location}</span>
+              <span class="text-xs px-2.5 py-0.5 rounded font-bold uppercase ${order.status==='Pending'?'bg-red-900/40 text-red-400 border border-red-800':'bg-yellow-900/40 text-yellow-400 border border-yellow-800'}">${order.status}</span>
+            </div>
+            <ul class="space-y-1 py-1">${itemsSummary}</ul>
+            <div class="flex gap-2 pt-1">
+              ${order.status === 'Pending' ? `
+                <button class="flex-1 bg-amber-600 text-xs text-black font-extrabold py-2 rounded-lg hover:bg-amber-500 transition btn-status-up" data-id="${order.id}" data-next="Preparing">Start Preparing</button>
+              ` : `
+                <button class="flex-1 bg-emerald-600 text-xs text-white font-bold py-2 rounded-lg hover:bg-emerald-500 transition btn-status-up" data-id="${order.id}" data-next="Served">Mark Served</button>
+              `}
+            </div>
+          `;
+          container.appendChild(div);
+        });
+
+        // Actions mapping
+        container.querySelectorAll('.btn-status-up').forEach(b => {
+          b.onclick = () => {
+            const id = b.getAttribute('data-id');
+            const nextStatus = b.getAttribute('data-next');
+            update(ref(database, 'orders/' + id), { status: nextStatus }).then(() => {
+              // Automatically switch table indicator to continuous green monitor safety once all orders served
+              if(nextStatus === 'Served') {
+                // optional auto fallback calculation evaluation checks could happen here
+              }
+            });
+          };
+        });
+      });
+    }
+
+    function generateBillingDesk(sessions) {
+      const billingList = document.getElementById('admin-billing-list');
+      billingList.innerHTML = '';
+      
+      const billingRequests = Object.keys(sessions).map(loc => ({loc, ...sessions[loc]}))
+                                    .filter(s => s.billRequested === true);
+
+      if(billingRequests.length === 0) {
+        billingList.innerHTML = `<p class="text-gray-500 text-sm italic py-4 text-center">No open pending bills requests.</p>`;
+        return;
+      }
+
+      // Fetch absolute data once again to map prices correctly
+      onValue(ref(database, 'orders'), (snapshot) => {
+        const allOrders = snapshot.val() || {};
+        
+        billingRequests.forEach(req => {
+          let runningSubtotal = 0;
+          let calculatedItemsSummary = '';
+
+          // Filter orders for this specific location
+          Object.keys(allOrders).forEach(id => {
+            const o = allOrders[id];
+            if(o.location === req.loc) {
+              o.items.forEach(i => {
+                runningSubtotal += (i.price * i.qty);
+                calculatedItemsSummary += `<div class="flex justify-between text-xs text-gray-400 font-mono"><span>${i.name} (x${i.qty})</span><span>₹${i.price*i.qty}</span></div>`;
+              });
+            }
+          });
+
+          const sgst = runningSubtotal * 0.05;
+          const cgst = runningSubtotal * 0.05;
+          const grandTotal = runningSubtotal + sgst + cgst;
+
+          const card = document.createElement('div');
+          card.className = "bg-gray-950 border border-gray-800 rounded-xl p-4 space-y-3";
+          card.innerHTML = `
+            <div class="flex justify-between items-center border-b border-gray-800 pb-1">
+              <span class="text-red-400 font-black text-lg">${req.loc} Requested Bill</span>
+              <i class="fa-solid fa-receipt text-gray-500"></i>
+            </div>
+            <div class="space-y-1 max-h-[15vh] overflow-y-auto">${calculatedItemsSummary}</div>
+            <div class="border-t border-gray-800 pt-2 space-y-1 text-xs">
+              <div class="flex justify-between"><span>Subtotal:</span><span>₹${runningSubtotal}</span></div>
+              <div class="flex justify-between text-gray-500"><span>SGST (5%):</span><span>₹${sgst.toFixed(2)}</span></div>
+              <div class="flex justify-between text-gray-500"><span>CGST (5%):</span><span>₹${cgst.toFixed(2)}</span></div>
+              <div class="flex justify-between text-md font-bold text-emerald-400 pt-1 border-t border-dashed border-gray-800">
+                <span>Grand Total:</span><span>₹${grandTotal.toFixed(2)}</span>
+              </div>
+            </div>
+            <button class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2 rounded-lg text-xs transition btn-settle-bill" data-loc="${req.loc}">
+              Settle & Clear Table Session
+            </button>
+          `;
+          billingList.appendChild(card);
+        });
+
+        // Settle Bill Action Handler
+        billingList.querySelectorAll('.btn-settle-bill').forEach(b => {
+          b.onclick = () => {
+            const loc = b.getAttribute('data-loc');
+            if(confirm(`Confirm payment settlement for ${loc}? This will completely free up this layout session.`)) {
+              // Delete specific location logs from ongoing active states sessions
+              remove(ref(database, 'sessions/' + loc));
+              // Also clean orders history relative data maps associated to clear visuals
+              onValue(ref(database, 'orders'), (snap) => {
+                const orders = snap.val() || {};
+                Object.keys(orders).forEach(id => {
+                  if(orders[id].location === loc) {
+                    remove(ref(database, 'orders/' + id));
+                  }
+                });
+              }, {onlyOnce: true});
+              alert(`${loc} successfully settled and reset.`);
+            }
+          };
+        });
+
+      }, {onlyOnce: true});
+    }
+
+    // Admin Delete global reset override control hook
+    document.getElementById('clear-history-btn').onclick = () => {
+      if(confirm("CRITICAL MASTER OVERRIDE: Clear all active orders, status matrices, and session records across the entire database?")) {
+        remove(ref(database, 'orders'));
+        remove(ref(database, 'sessions'));
+        alert("Entire architecture successfully flushed clean.");
+        window.location.reload();
+      }
+    };
+
+    // Run Initializing Routing Evaluation Loop
+    initApp();
+  </script>
+</body>
+</html>
