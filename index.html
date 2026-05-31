@@ -145,7 +145,7 @@ HOTEL SAPPHIRE
             </div>
 
             <!-- Confirm Boarding Button -->
-            <button onclick="startSession()" id="start-dining-btn" class="w-full bg-gold hover:bg-yellow-500 text-black font-extrabold py-3.5 rounded-xl tracking-widest text-xs transition duration-300 shadow-lg" disabled>
+            <button id="start-dining-btn" class="w-full bg-gold/10 border border-gold/20 text-gold/40 font-extrabold py-3.5 rounded-xl tracking-widest text-xs transition duration-300 shadow-lg pointer-events-none" disabled>
                 SELECT STATION TO ENTER
             </button>
         </div>
@@ -167,7 +167,7 @@ HOTEL SAPPHIRE
                 <span class="w-1.5 h-1.5 rounded-full bg-green-500 animate-ping"></span>
                 <span id="session-clock">00:00</span>
             </div>
-            <button onclick="changeStation()" class="text-[9px] tracking-widest font-semibold text-red-400 hover:text-white transition duration-300 border border-red-500/20 px-2.5 py-1 rounded-full bg-red-950/20">
+            <button id="change-station-trigger" class="text-[9px] tracking-widest font-semibold text-red-400 hover:text-white transition duration-300 border border-red-500/20 px-2.5 py-1 rounded-full bg-red-950/20">
                 <i class="fa-solid fa-rotate-left mr-1"></i> CHANGE TABLE
             </button>
         </div>
@@ -186,7 +186,7 @@ HOTEL SAPPHIRE
             <div id="sync-source-badge" class="mt-4 text-[10px] text-gray-500 bg-gray-950 border border-gray-800 px-3 py-1 rounded font-mono">
                 Acquiring Google Sheets configuration...
             </div>
-            <button onclick="dismissHint()" class="mt-6 px-8 py-2.5 bg-gold text-black rounded font-bold text-xs tracking-widest hover:bg-yellow-500 transition">ENTER MENU</button>
+            <button id="enter-menu-btn" class="mt-6 px-8 py-2.5 bg-gold text-black rounded font-bold text-xs tracking-widest hover:bg-yellow-500 transition">ENTER MENU</button>
         </div>
 
         <!-- 3D BOOK PORT -->
@@ -199,7 +199,7 @@ HOTEL SAPPHIRE
 
     <!-- FLOATING ORDER CART UNIT -->
     <div id="cart-dock" class="fixed bottom-16 right-4 z-30 flex items-center space-x-2">
-        <button onclick="goToCartPage()" class="relative bg-gold hover:bg-yellow-500 text-black font-bold p-4 rounded-full shadow-lg transition duration-300 focus:outline-none flex items-center justify-center gold-glow">
+        <button id="go-to-cart-trigger" class="relative bg-gold hover:bg-yellow-500 text-black font-bold p-4 rounded-full shadow-lg transition duration-300 focus:outline-none flex items-center justify-center gold-glow">
             <i class="fa-solid fa-cart-shopping text-xl"></i>
             <span id="cart-count" class="absolute -top-1 -right-1 bg-red-600 text-white text-[10px] w-5 h-5 rounded-full flex items-center justify-center border border-black font-extrabold">0</span>
         </button>
@@ -207,9 +207,9 @@ HOTEL SAPPHIRE
 
     <!-- QUICK DOTS / PAGE TOGGLER -->
     <div class="fixed bottom-16 left-1/2 -translate-x-1/2 z-20 flex items-center space-x-2 bg-black/80 px-3 py-1 rounded-full border border-gold/10">
-        <button onclick="prevPage()" class="text-gold hover:text-white px-2.5 py-0.5"><i class="fa-solid fa-chevron-left"></i></button>
+        <button id="prev-page-trigger" class="text-gold hover:text-white px-2.5 py-0.5"><i class="fa-solid fa-chevron-left"></i></button>
         <span id="page-num-indicator" class="text-xs tracking-widest text-gold serif-font">PAGE 1</span>
-        <button onclick="nextPage()" class="text-gold hover:text-white px-2.5 py-0.5"><i class="fa-solid fa-chevron-right"></i></button>
+        <button id="next-page-trigger" class="text-gold hover:text-white px-2.5 py-0.5"><i class="fa-solid fa-chevron-right"></i></button>
     </div>
 
     <!-- FEEDBACK UNIT WITH GOOGLE MAPS DIRECT TARGETING -->
@@ -227,29 +227,104 @@ HOTEL SAPPHIRE
         <span id="toast-message">Item Added!</span>
     </div>
 
+    <!-- REUSABLE CUSTOM MODAL DIALOG (No browser alert/confirm bypass) -->
+    <div id="custom-modal" class="fixed inset-0 bg-black/85 z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-[#120e0b] border border-gold/30 rounded-2xl p-6 w-full max-w-xs text-center shadow-2xl space-y-5">
+            <h3 id="modal-title" class="serif-font text-gold text-sm tracking-wider font-bold">STATION CONFIRMATION</h3>
+            <p id="modal-msg" class="text-xs text-gray-400 leading-relaxed"></p>
+            <div class="flex space-x-2.5 pt-2">
+                <button id="modal-cancel-btn" class="flex-1 border border-gold/20 text-gold py-2 rounded-xl text-xs font-bold hover:bg-gold/10 transition">Cancel</button>
+                <button id="modal-confirm-btn" class="flex-1 bg-gold text-black py-2 rounded-xl text-xs font-extrabold hover:bg-yellow-500 transition">Confirm</button>
+            </div>
+        </div>
+    </div>
+
     <!-- AUDIO CONTROLLER -->
     <div class="fixed bottom-16 left-4 z-30">
-        <button onclick="toggleAudio()" id="audio-btn" class="bg-black/80 hover:bg-[#16120e] border border-gold/30 text-gold p-3 rounded-full shadow-lg transition duration-300 flex items-center justify-center">
+        <button id="audio-toggle-btn" class="bg-black/80 hover:bg-[#16120e] border border-gold/30 text-gold p-3 rounded-full shadow-lg transition duration-300 flex items-center justify-center">
             <i id="audio-icon" class="fa-solid fa-volume-high"></i>
         </button>
     </div>
 
-    <script>
-        // Config Parameters
-        const SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/1S55o6bDx4OS_i74CUKz0l20N01AZ6QXuF3D6OvHBsaU/export?format=csv";
-        const SUPABASE_URL = "https://kvzmmqzyspplqmxetdir.supabase.co/rest/v1/";
-        const SUPABASE_KEY = "sb_publishable_zI3NcmwRAjXgUg-dStSerA_cusoGsKf";
+    <!-- Live database sync script using secure environment paths -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInWithCustomToken, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, getDoc, collection, onSnapshot, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // Global Firebase Configuration Setup
+        const firebaseConfig = JSON.parse(__firebase_config);
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
 
         let menuItems = [];
-        let cart = [];             // Current items choosing but not yet dispatched
-        let dispatchedTray = [];    // Already submitted kitchen items (Persistent)
+        let cart = [];             
+        let dispatchedTray = [];    
         let currentPageIndex = 0;
-        let selectedStation = "";   // Holds active Table or Room cabin key
+        let selectedStation = "";   
         let audioEnabled = true;
         let totalPagesArray = [];
         let clockTimer = null;
+        let authUser = null;
+        let unsubSession = null;
 
-        // Populate Table (T1-T10) and Room (R1-R10) buttons inside selection screen
+        // AUTHENTICATION GUARD SETUP (RULE 3)
+        async function initAuth() {
+            try {
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                    await signInWithCustomToken(auth, __initial_auth_token);
+                } else {
+                    await signInAnonymously(auth);
+                }
+            } catch (e) {
+                console.error("Auth process error:", e);
+            }
+        }
+
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                authUser = user;
+                // Once authenticated safely initiate app logic
+                renderStationGrids();
+                loadMenuSystem();
+                checkExistingSession();
+            }
+        });
+
+        // Recover previous login parameters if present
+        async function checkExistingSession() {
+            const savedStation = localStorage.getItem("sapphire_station");
+            if (savedStation && authUser) {
+                selectedStation = savedStation;
+                
+                // Read from cloud database (RULE 1)
+                const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'orders', selectedStation);
+                try {
+                    const docSnap = await getDoc(docRef);
+                    if (docSnap.exists() && docSnap.data().status !== "Completed") {
+                        const data = docSnap.data();
+                        dispatchedTray = JSON.parse(data.items || "[]");
+                        
+                        // Set recovered timer parameters
+                        localStorage.setItem("sapphire_session_start", data.created_at || Date.now());
+                        document.getElementById("selection-screen").style.display = "none";
+                        document.getElementById("header-location").innerText = `STATION: ${selectedStation}`;
+                        
+                        startClock();
+                        listenToStationSession();
+                    } else {
+                        // Clear invalid state
+                        localStorage.removeItem("sapphire_station");
+                    }
+                } catch (e) {
+                    console.log("Error recovering state, restarting onboarding.", e);
+                }
+            }
+        }
+
+        // Generate Grid stations Selection
         function renderStationGrids() {
             const tableGrid = document.getElementById("tables-grid");
             const roomGrid = document.getElementById("rooms-grid");
@@ -257,20 +332,28 @@ HOTEL SAPPHIRE
             roomGrid.innerHTML = "";
 
             for (let i = 1; i <= 10; i++) {
+                const tId = `T-${i}`;
+                const rId = `R-${i}`;
+                
                 tableGrid.innerHTML += `
-                    <button onclick="selectStation('T-${i}')" id="btn-T-${i}" class="station-btn bg-black/45 border border-gold/20 rounded-xl py-3 hover:bg-gold/10 text-white font-bold text-xs transition duration-200">
+                    <button id="btn-${tId}" class="station-btn bg-black/45 border border-gold/20 rounded-xl py-3 hover:bg-gold/10 text-white font-bold text-xs transition duration-200">
                         T${i}
                     </button>
                 `;
                 roomGrid.innerHTML += `
-                    <button onclick="selectStation('R-${i}')" id="btn-R-${i}" class="station-btn bg-black/45 border border-gold/20 rounded-xl py-3 hover:bg-gold/10 text-white font-bold text-xs transition duration-200">
+                    <button id="btn-${rId}" class="station-btn bg-black/45 border border-gold/20 rounded-xl py-3 hover:bg-gold/10 text-white font-bold text-xs transition duration-200">
                         R${i}
                     </button>
                 `;
             }
+
+            // Assign OnClick events
+            for (let i = 1; i <= 10; i++) {
+                document.getElementById(`btn-T-${i}`).onclick = () => selectStation(`T-${i}`);
+                document.getElementById(`btn-R-${i}`).onclick = () => selectStation(`R-${i}`);
+            }
         }
 
-        // Highlight chosen Table or Room button cleanly
         function selectStation(stationId) {
             selectedStation = stationId;
             document.querySelectorAll(".station-btn").forEach(btn => {
@@ -284,48 +367,81 @@ HOTEL SAPPHIRE
 
             const confirmBtn = document.getElementById("start-dining-btn");
             confirmBtn.disabled = false;
-            confirmBtn.innerText = `CONFIRM ${stationId.toUpperCase()} & ENTER MENU`;
+            confirmBtn.innerText = `CONFIRM ${stationId.toUpperCase()} & ENTER`;
             confirmBtn.className = "w-full bg-gold hover:bg-yellow-500 text-black font-extrabold py-3.5 rounded-xl tracking-widest text-xs transition duration-300 shadow-lg cursor-pointer";
         }
 
-        // Session onboarding, saves checked-in flag to Supabase to turn matrix indicators green
         async function startSession() {
-            if (!selectedStation) return;
+            if (!selectedStation || !authUser) return;
 
             localStorage.setItem("sapphire_station", selectedStation);
             localStorage.setItem("sapphire_session_start", Date.now());
             
-            // Post "Checked-In" status order to turn counter panel indicator green
+            // Post Check-In state to cloud database (RULE 1)
             await sendKitchenSignal("Checked-In");
 
-            // Close checking view
             document.getElementById("selection-screen").style.display = "none";
             document.getElementById("header-location").innerText = `STATION: ${selectedStation}`;
 
             startClock();
+            listenToStationSession();
             showToast(`Checked in to Cabin ${selectedStation}!`);
             playFlipSound();
         }
 
-        // Undo/Change Station session configuration
         function changeStation() {
-            clearInterval(clockTimer);
-            sendKitchenSignal("Completed"); // Reset visual kitchen lights
-            localStorage.removeItem("sapphire_station");
-            localStorage.removeItem("sapphire_session_start");
-            selectedStation = "";
-            cart = [];
-            dispatchedTray = [];
-            
-            document.getElementById("selection-screen").style.display = "flex";
-            renderStationGrids();
-            updateCartCounter();
+            showCustomConfirm("CHANGE TABLE/ROOM?", "Are you sure you want to change your dining station? This action ends your current active clock session.", async () => {
+                clearInterval(clockTimer);
+                if (unsubSession) unsubSession();
+                
+                await sendKitchenSignal("Completed"); // clear visual matrices
+                localStorage.removeItem("sapphire_station");
+                localStorage.removeItem("sapphire_session_start");
+                selectedStation = "";
+                cart = [];
+                dispatchedTray = [];
+                
+                document.getElementById("selection-screen").style.display = "flex";
+                renderStationGrids();
+                updateCartCounter();
+            });
         }
 
-        // Real-time ticking session timer
+        // Live Firestore sync loop. If kitchen admin logs Out/Clears table, customer logs out instantly
+        function listenToStationSession() {
+            if (unsubSession) unsubSession();
+            if (!selectedStation || !authUser) return;
+
+            const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'orders', selectedStation);
+            unsubSession = onSnapshot(docRef, (docSnap) => {
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
+                    if (data.status === "Completed") {
+                        // Table cleared by waiter
+                        clearInterval(clockTimer);
+                        localStorage.removeItem("sapphire_station");
+                        localStorage.removeItem("sapphire_session_start");
+                        selectedStation = "";
+                        cart = [];
+                        dispatchedTray = [];
+                        
+                        document.getElementById("selection-screen").style.display = "flex";
+                        renderStationGrids();
+                        updateCartCounter();
+                        showToast("Session closed by kitchen desk.");
+                    } else {
+                        dispatchedTray = JSON.parse(data.items || "[]");
+                        refreshCartView();
+                    }
+                }
+            }, (error) => {
+                console.error("Firestore station session listener error:", error);
+            });
+        }
+
         function startClock() {
             clearInterval(clockTimer);
-            const startTime = localStorage.getItem("sapphire_session_start") || Date.now();
+            const startTime = parseInt(localStorage.getItem("sapphire_session_start") || Date.now());
             const clockEl = document.getElementById("session-clock");
 
             clockTimer = setInterval(() => {
@@ -337,36 +453,30 @@ HOTEL SAPPHIRE
             }, 1000);
         }
 
-        // Submits active table operations and updates state color lights on the dashboard
+        // Helper to update database fields securely (RULE 1)
         async function sendKitchenSignal(statusFlag, itemsPayload = []) {
-            if (!selectedStation) return;
+            if (!selectedStation || !authUser) return;
 
             const subtotal = itemsPayload.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-            const sgst = parseFloat((subtotal * 0.05).toFixed(2));
-            const cgst = parseFloat((subtotal * 0.05).toFixed(2));
-            const grandTotal = parseFloat((subtotal + sgst + cgst).toFixed(2));
+            const taxes = subtotal * 0.10;
+            const grandTotal = subtotal + taxes;
 
             const payload = {
                 table_number: selectedStation,
                 items: JSON.stringify(itemsPayload),
                 subtotal,
-                sgst,
-                cgst,
+                taxes,
                 grand_total: grandTotal,
-                status: statusFlag
+                status: statusFlag,
+                created_at: parseInt(localStorage.getItem("sapphire_session_start") || Date.now()),
+                last_updated: Date.now()
             };
 
+            const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'orders', selectedStation);
             try {
-                await fetch(`${SUPABASE_URL}orders`, {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                        "apikey": SUPABASE_KEY
-                    },
-                    body: JSON.stringify(payload)
-                });
+                await setDoc(docRef, payload);
             } catch (err) {
-                console.log("Supabase pipe blocked. Utilizing fallback queues.", err);
+                console.error("Firestore document write blocked:", err);
             }
         }
 
@@ -403,7 +513,7 @@ HOTEL SAPPHIRE
                 noise.start();
                 noise.stop(ctx.currentTime + 0.45);
             } catch (e) {
-                console.log("Audio require gesture sync:", e);
+                console.log("Sensory sound initialization requirement bypassed.");
             }
         }
 
@@ -420,7 +530,7 @@ HOTEL SAPPHIRE
             }
         }
 
-        // --- GOOGLE SHEETS LIVE LOADER & FALLBACK ENGINE ---
+        // --- GOOGLE SHEETS LIVE LOAD PIPELINE ---
         async function loadMenuSystem() {
             const badge = document.getElementById("sync-source-badge");
             
@@ -437,30 +547,11 @@ HOTEL SAPPHIRE
                     }
                 }
             } catch (err) {
-                console.log("CSV fetch error, shifting to active database backup...", err);
+                console.log("Direct CSV sync block. Falling back to default list", err);
             }
 
-            // Fallback load menu items from Supabase or standard catalogue
-            try {
-                const response = await fetch(`${SUPABASE_URL}menu_items?select=*`, {
-                    headers: { "apikey": SUPABASE_KEY }
-                });
-                if (response.ok) {
-                    const data = await response.json();
-                    if (data && data.length > 0) {
-                        menuItems = data;
-                        badge.innerHTML = `<span class="text-yellow-500 font-bold"><i class="fa-solid fa-database"></i> Live Supabase Sync (${menuItems.length} Items)</span>`;
-                        renderBook();
-                        return;
-                    }
-                }
-            } catch (err) {
-                console.log("Supabase offline, using local system assets", err);
-            }
-
-            // Base Default Menu list (From physical catalog parsed indexes)
             menuItems = getDefaultMenuData();
-            badge.innerHTML = `<span class="text-yellow-600 font-bold"><i class="fa-solid fa-book-open"></i> Full Local Catalog Active (${menuItems.length} Dishes)</span>`;
+            badge.innerHTML = `<span class="text-yellow-600 font-bold"><i class="fa-solid fa-book-open"></i> Local Backup active (${menuItems.length} Items)</span>`;
             renderBook();
         }
 
@@ -506,13 +597,13 @@ HOTEL SAPPHIRE
                     name: targetName,
                     price: isNaN(priceNum) ? 350 : priceNum,
                     category: row[catIdx === -1 ? 2 : catIdx] || 'Specialties',
-                    description: row[descIdx === -1 ? 3 : descIdx] || 'Premium selection cooked with authentic herbs.'
+                    description: row[descIdx === -1 ? 3 : descIdx] || 'Aromatic recipe cooked on slow tandoori fire.'
                 });
             }
             return list;
         }
 
-        // --- BOOK BUILDER & RENDER ENGINE ---
+        // --- BOOK PAGES COMPOSITION MATRIX ---
         function getPagesStructure() {
             const categories = {};
             menuItems.forEach(item => {
@@ -564,21 +655,24 @@ HOTEL SAPPHIRE
                         </div>
                     `;
                 } else if (page.type === "category") {
-                    const itemCards = page.items.map(item => `
-                        <div class="flex items-center justify-between p-2.5 rounded-xl bg-black/40 border border-gold/10 hover:border-gold/30 transition shadow-inner">
-                            <div class="flex-grow pr-3 text-left">
-                                <div class="flex items-center space-x-1.5">
-                                    <span class="w-2 h-2 rounded-full ${page.category.toLowerCase().includes('non') ? 'bg-red-500' : 'bg-green-500'}"></span>
-                                    <h4 class="font-bold text-xs md:text-sm text-gold">${item.name}</h4>
+                    const itemCards = page.items.map(item => {
+                        const escapedName = item.name.replace(/'/g, "\\'");
+                        return `
+                            <div class="flex items-center justify-between p-2.5 rounded-xl bg-black/40 border border-gold/10 hover:border-gold/30 transition shadow-inner">
+                                <div class="flex-grow pr-3 text-left">
+                                    <div class="flex items-center space-x-1.5">
+                                        <span class="w-2 h-2 rounded-full ${page.category.toLowerCase().includes('non') ? 'bg-red-500' : 'bg-green-500'}"></span>
+                                        <h4 class="font-bold text-xs md:text-sm text-gold">${item.name}</h4>
+                                    </div>
+                                    <p class="text-[9px] md:text-[10px] text-gray-400 mt-0.5 leading-relaxed line-clamp-1">${item.description || 'Exclusive creation prepared fresh on order.'}</p>
+                                    <span class="text-xs font-semibold text-white block mt-0.5 font-mono">₹ ${item.price}</span>
                                 </div>
-                                <p class="text-[9px] md:text-[10px] text-gray-400 mt-0.5 leading-relaxed line-clamp-1">${item.description || 'Exclusive culinary creation prepared fresh on order.'}</p>
-                                <span class="text-xs font-semibold text-white block mt-0.5 font-mono">₹ ${item.price}</span>
+                                <button onclick="window.addToCartWrapper(${item.id}, '${escapedName}', ${item.price})" class="flex-shrink-0 bg-gold hover:bg-yellow-500 text-black px-3 py-1.5 rounded-lg font-bold text-[10px] flex items-center space-x-1 transition duration-300">
+                                    <i class="fa-solid fa-plus"></i> <span>ADD</span>
+                                </button>
                             </div>
-                            <button onclick="addToCart(${item.id}, '${item.name.replace(/'/g, "\\'")}', ${item.price})" class="flex-shrink-0 bg-gold hover:bg-yellow-500 text-black px-3 py-1.5 rounded-lg font-bold text-[10px] flex items-center space-x-1 transition duration-300">
-                                <i class="fa-solid fa-plus"></i> <span>ADD</span>
-                            </button>
-                        </div>
-                    `).join("");
+                        `;
+                    }).join("");
 
                     html = `
                         <div class="page-face page-front p-4 flex flex-col justify-between h-[99%] text-center">
@@ -606,14 +700,13 @@ HOTEL SAPPHIRE
                                     <h2 class="serif-font text-base md:text-lg font-bold text-gold uppercase tracking-wider">YOUR DINING TRAY</h2>
                                 </div>
                                 
-                                <!-- SCROLLABLE MULTIPLE STATE CART SECTIONS -->
                                 <div class="flex-grow overflow-y-auto max-h-[220px] custom-scroll space-y-3 pr-1 mb-2">
-                                    <!-- Tray section 1: Choosing Items -->
+                                    <!-- Selection Queue -->
                                     <div id="choosing-tray-box">
                                         <p class="text-center text-gray-500 text-xs py-2">Add delicious items to begin order.</p>
                                     </div>
                                     
-                                    <!-- Tray section 2: Sent Orders (Persistent until requested bill) -->
+                                    <!-- Dispatched Persistent section -->
                                     <div id="dispatched-tray-box" class="hidden text-left space-y-1.5 pt-2 border-t border-gold/10">
                                         <span class="text-[9px] tracking-widest text-yellow-500/80 font-bold block mb-1 uppercase"><i class="fa-solid fa-fire-burner animate-pulse mr-1"></i> Dispatched to Kitchen:</span>
                                         <div id="dispatched-list" class="space-y-1.5"></div>
@@ -637,14 +730,12 @@ HOTEL SAPPHIRE
                                 </div>
 
                                 <div class="space-y-2 mt-2">
-                                    <!-- Order Submit -->
-                                    <button onclick="placeOrder()" id="order-btn" class="w-full bg-gold hover:bg-yellow-500 text-black font-extrabold py-3 rounded-lg tracking-widest text-xs flex items-center justify-center space-x-2 transition duration-300">
+                                    <button id="order-submit-btn" class="w-full bg-gold hover:bg-yellow-500 text-black font-extrabold py-3 rounded-lg tracking-widest text-xs flex items-center justify-center space-x-2 transition duration-300">
                                         <i class="fa-solid fa-utensils"></i>
                                         <span>SEND ACTIVE SELECTIONS</span>
                                     </button>
 
-                                    <!-- Request Bill (Triggers kitchen state matrix flashing red) -->
-                                    <button onclick="requestWaiterBill()" id="bill-btn" class="w-full bg-red-600/20 border border-red-500/30 hover:bg-red-500 hover:text-white text-red-400 font-extrabold py-2 rounded-lg tracking-widest text-[10px] flex items-center justify-center space-x-1.5 transition duration-300" disabled>
+                                    <button id="bill-request-btn" class="w-full bg-red-600/10 border border-red-500/15 text-red-500/40 font-extrabold py-2 rounded-lg tracking-widest text-[10px] flex items-center justify-center space-x-1.5 transition duration-300 pointer-events-none" disabled>
                                         <i class="fa-solid fa-file-invoice-dollar"></i>
                                         <span>ASK FOR BILL / FINISH DINING</span>
                                     </button>
@@ -658,10 +749,42 @@ HOTEL SAPPHIRE
                 bookEl.appendChild(pageDiv);
             });
 
+            // Bind triggers to prevent dynamic markup scoping failures
+            const submitBtn = document.getElementById("order-submit-btn");
+            if (submitBtn) submitBtn.onclick = () => placeOrder();
+
+            const billRequestBtn = document.getElementById("bill-request-btn");
+            if (billRequestBtn) billRequestBtn.onclick = () => requestWaiterBill();
+
             updatePageDisplay();
         }
 
-        // --- NAVIGATION FLIPPING & DOT ACTIONS ---
+        // Exposed wrapper triggers for onclick execution
+        window.addToCartWrapper = function(id, name, price) {
+            const choosingItem = cart.find(i => i.id === id);
+            if (choosingItem) {
+                choosingItem.quantity++;
+            } else {
+                cart.push({ id, name, price, quantity: 1 });
+            }
+            updateCartCounter();
+            showToast(`${name} added!`);
+            playFlipSound();
+        };
+
+        window.changeChoosingQtyWrapper = function(id, delta) {
+            const item = cart.find(i => i.id === id);
+            if (item) {
+                item.quantity += delta;
+                if (item.quantity <= 0) {
+                    cart = cart.filter(i => i.id !== id);
+                }
+                updateCartCounter();
+                refreshCartView();
+            }
+        };
+
+        // --- NAVIGATION CONTROLS ---
         function updatePageDisplay() {
             const pages = document.querySelectorAll(".book-page");
             pages.forEach((p, idx) => {
@@ -690,14 +813,6 @@ HOTEL SAPPHIRE
             }
         }
 
-        function goToPage(pageNo) {
-            if (pageNo >= 1 && pageNo <= totalPagesArray.length && pageNo !== currentPageIndex + 1) {
-                currentPageIndex = pageNo - 1;
-                playFlipSound();
-                updatePageDisplay();
-            }
-        }
-
         function goToCartPage() {
             const idx = totalPagesArray.findIndex(p => p.type === "cart");
             if (idx !== -1) {
@@ -707,81 +822,52 @@ HOTEL SAPPHIRE
             }
         }
 
-        // --- GESTURE SWIPE MANAGEMENT ---
+        // Swipe Events Configuration
         let touchStartX = 0;
         let touchEndX = 0;
         document.addEventListener("touchstart", e => touchStartX = e.changedTouches[0].screenX, { passive: true });
         document.addEventListener("touchend", e => {
             touchEndX = e.changedTouches[0].screenX;
             const dist = touchStartX - touchEndX;
-            if (dist > 50) nextPage();
-            else if (dist < -50) prevPage();
+            if (Math.abs(dist) > 55) {
+                if (dist > 0) nextPage();
+                else prevPage();
+            }
         }, { passive: true });
 
-        function dismissHint() {
-            document.getElementById("swipe-hint").style.opacity = "0";
-            setTimeout(() => document.getElementById("swipe-hint").style.display = "none", 500);
-            playFlipSound();
-        }
-
-        // --- TRAY AND ORDER WORKFLOW ACTIONS ---
-        function addToCart(id, name, price) {
-            const choosingItem = cart.find(i => i.id === id);
-            if (choosingItem) {
-                choosingItem.quantity++;
-            } else {
-                cart.push({ id, name, price, quantity: 1 });
-            }
-            updateCartCounter();
-            showToast(`${name} added!`);
-            playFlipSound();
-        }
-
+        // --- TRAY ENGINE RENDER ---
         function updateCartCounter() {
             const activeTotal = cart.reduce((sum, item) => sum + item.quantity, 0);
             document.getElementById("cart-count").innerText = activeTotal;
-        }
-
-        function changeChoosingQty(id, delta) {
-            const item = cart.find(i => i.id === id);
-            if (item) {
-                item.quantity += delta;
-                if (item.quantity <= 0) {
-                    cart = cart.filter(i => i.id !== id);
-                }
-                updateCartCounter();
-                refreshCartView();
-            }
         }
 
         function refreshCartView() {
             const choosingBox = document.getElementById("choosing-tray-box");
             const dispBox = document.getElementById("dispatched-tray-box");
             const dispList = document.getElementById("dispatched-list");
-            const billBtn = document.getElementById("bill-btn");
+            const billBtn = document.getElementById("bill-request-btn");
 
             if (!choosingBox) return;
 
-            // Render current unsent choices
             if (cart.length === 0) {
                 choosingBox.innerHTML = `
                     <p class="text-center text-gray-500 text-xs py-8">
                         <i class="fa-solid fa-basket-shopping text-2xl mb-1 text-gold/10 block"></i>
-                        Tray is empty.
+                        Selection queue empty.
                     </p>
                 `;
             } else {
                 choosingBox.innerHTML = cart.map(item => `
-                    <div class="flex items-center justify-between p-2 rounded-lg bg-black/40 border border-gold/10 text-xs text-left">
+                    <div class="flex items-center justify-between p-2 rounded-lg bg-black/45 border border-gold/10 text-xs text-left">
                         <div class="flex-grow">
                             <span class="font-semibold text-white">${item.name}</span>
                             <span class="text-[9px] text-gray-400 block font-mono">₹ ${item.price} each</span>
                         </div>
                         <div class="flex items-center space-x-2">
-                            <div class="flex items-center space-x-1.5 border border-gold/20 rounded px-1 py-0.5 bg-[#0e0a07]">
-                                <button onclick="changeChoosingQty(${item.id}, -1)" class="text-gold font-bold px-1 text-xs">-</button>
+                            <div class="flex items-center space-x-1.5 border border-gold/20 rounded px-1.5 py-0.5 bg-[#0e0a07]">
+                                <button onclick="window.changeChoosingQtyWrapper(${item.id}, -1)" class="text-gold font-bold px-1 text-xs">-</button>
                                 <span class="font-mono text-white text-xs">${item.quantity}</span>
-                                <button onclick="changeChoosingQty(${item.id}, 1)" class="text-gold font-bold px-1 text-xs">+</button>
+                                <button onclick="window.changeChoosingQtyWrapper(${item.id}, 1)" class="text-gold font-bold px-1 text-xs">+</button>
                             </div>
                             <span class="font-mono text-gold font-bold min-w-[50px] text-right">₹ ${item.price * item.quantity}</span>
                         </div>
@@ -789,7 +875,6 @@ HOTEL SAPPHIRE
                 `).join("");
             }
 
-            // Render already dispatched/active orders list (Persistent)
             if (dispatchedTray.length === 0) {
                 dispBox.classList.add("hidden");
                 billBtn.disabled = true;
@@ -807,7 +892,6 @@ HOTEL SAPPHIRE
                 `).join("");
             }
 
-            // Calculation Box updates (Consolidated active + dispatched sums)
             const combinedSubtotal = [...cart, ...dispatchedTray].reduce((sum, item) => sum + (item.price * item.quantity), 0);
             const estTaxes = combinedSubtotal * 0.10;
             const grandTotal = combinedSubtotal + estTaxes;
@@ -817,18 +901,16 @@ HOTEL SAPPHIRE
             document.getElementById("bill-total").innerText = `₹ ${grandTotal.toFixed(2)}`;
         }
 
-        // Submits active choices to the kitchen dispatcher and updates dispatched items locally
         async function placeOrder() {
             if (cart.length === 0) {
                 showToast("Please add items to select!");
                 return;
             }
 
-            const activeBtn = document.getElementById("order-btn");
+            const activeBtn = document.getElementById("order-submit-btn");
             activeBtn.disabled = true;
             activeBtn.innerHTML = `<i class="fa-solid fa-spinner animate-spin"></i> <span>SENDING TO KITCHEN...</span>`;
 
-            // Merge current selections into the dispatched/ordered storage container
             cart.forEach(item => {
                 const existing = dispatchedTray.find(d => d.id === item.id);
                 if (existing) {
@@ -838,33 +920,52 @@ HOTEL SAPPHIRE
                 }
             });
 
-            // Dispatches full orders listing payload to Supabase
             await sendKitchenSignal("Pending", dispatchedTray);
 
-            // Wipes choosing box but leaves dispatched visual list intact
             cart = [];
             updateCartCounter();
             refreshCartView();
 
-            showToast("Order placed successfully.");
+            showToast("Order placed successfully!");
 
             activeBtn.disabled = false;
             activeBtn.innerHTML = `<i class="fa-solid fa-utensils"></i> <span>SEND ACTIVE SELECTIONS</span>`;
         }
 
-        // Requests waiter / Cashier to bring bill. Keeps visual receipt showing to allow client validation.
         async function requestWaiterBill() {
             if (dispatchedTray.length === 0) return;
 
-            const btn = document.getElementById("bill-btn");
-            btn.disabled = true;
-            btn.innerHTML = `<i class="fa-solid fa-spinner animate-spin"></i> <span>CALLING WAITER...</span>`;
+            showCustomConfirm("REQUEST BILL?", "Would you like to notify the kitchen counter desk to generate your final bill receipt?", async () => {
+                const btn = document.getElementById("bill-request-btn");
+                btn.disabled = true;
+                btn.innerHTML = `<i class="fa-solid fa-spinner animate-spin"></i> <span>CALLING WAITER...</span>`;
 
-            // Sets status flag to "Bill-Requested" -> turns grid cabin element red instantly
-            await sendKitchenSignal("Bill-Requested", dispatchedTray);
+                await sendKitchenSignal("Bill-Requested", dispatchedTray);
 
-            showToast("Waiter dispatched with bill!");
-            btn.innerHTML = `<i class="fa-solid fa-check"></i> <span>WAITER CALL SENT</span>`;
+                showToast("Bill request dispatched to counter!");
+                btn.innerHTML = `<i class="fa-solid fa-check"></i> <span>BILL CALLED</span>`;
+            });
+        }
+
+        // --- BEAUTIFUL REUSABLE CUSTOM DIALOG REPLACEMENT ---
+        function showCustomConfirm(title, msg, onConfirm) {
+            const modal = document.getElementById("custom-modal");
+            document.getElementById("modal-title").innerText = title;
+            document.getElementById("modal-msg").innerText = msg;
+            
+            modal.classList.remove("hidden");
+
+            const cancelBtn = document.getElementById("modal-cancel-btn");
+            const confirmBtn = document.getElementById("modal-confirm-btn");
+
+            cancelBtn.onclick = () => {
+                modal.classList.add("hidden");
+            };
+
+            confirmBtn.onclick = () => {
+                modal.classList.add("hidden");
+                onConfirm();
+            };
         }
 
         function showToast(msg) {
@@ -874,7 +975,7 @@ HOTEL SAPPHIRE
             setTimeout(() => toast.style.transform = "translateY(-150%)", 3000);
         }
 
-        // --- BACKUP DEFAULT CATALOG CONFIG DATA ---
+        // --- BACKUP CATALOGUE ---
         function getDefaultMenuData() {
             return [
                 { id: 1, name: "Crispy Veg Nuggets", price: 345, category: "Bar Bites" },
@@ -910,21 +1011,17 @@ HOTEL SAPPHIRE
             ];
         }
 
-        window.onload = function() {
-            renderStationGrids();
+        // Initialize Authentication
+        initAuth();
 
-            // Autologin check if there's already an active station cookie/localStorage
-            const savedStation = localStorage.getItem("sapphire_station");
-            if (savedStation) {
-                selectedStation = savedStation;
-                document.getElementById("selection-screen").style.display = "none";
-                document.getElementById("header-location").innerText = `STATION: ${selectedStation}`;
-                startClock();
-            }
-
-            loadMenuSystem();
-        }
+        // Standard Bindings
+        document.getElementById("start-dining-btn").onclick = startSession;
+        document.getElementById("change-station-trigger").onclick = changeStation;
+        document.getElementById("enter-menu-btn").onclick = dismissHint;
+        document.getElementById("prev-page-trigger").onclick = prevPage;
+        document.getElementById("next-page-trigger").onclick = nextPage;
+        document.getElementById("go-to-cart-trigger").onclick = goToCartPage;
+        document.getElementById("audio-toggle-btn").onclick = toggleAudio;
     </script>
 </body>
 </html>
-KDMA
