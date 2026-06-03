@@ -210,7 +210,23 @@ HOTEL SAPPHIRE
     let totalBookPages = 0;
     let activePageIndex = 0;
 
-    // HIGH-QUALITY ASMR SYNTHETIC AUDIO ENGINE
+    // IMMEDIATE PREMIUM BACKUP MENU
+    const BACKUP_MENU = [
+      { name: "Sapphire Special Paneer Tikka", category: "Starters", price: 320, description: "Succulent cubes of paneer marinated in premium yogurt, saffron, and house spices, cooked in tandoor." },
+      { name: "Tandoori Spring Mushroom", category: "Starters", price: 280, description: "Juicy field mushrooms stuffed with cheese, greens, and charcoal roasted to perfection." },
+      { name: "Malai Broccoli Sensation", category: "Starters", price: 295, description: "Fresh broccoli florets coated with rich cream cheese, cardamom, and grilled gently." },
+      { name: "Royal Dal Makhani", category: "Main Course", price: 340, description: "Black lentils slow-cooked overnight on charcoal with house butter and fresh tomato cream." },
+      { name: "Paneer Butter Masala", category: "Main Course", price: 360, description: "Tandoori paneer simmered in a silky tomato, cashew nut, and butter gravy." },
+      { name: "Kadhai Veg Diwani", category: "Main Course", price: 310, description: "Assorted garden vegetables tossed with bell peppers and fresh ground spices in a wok." },
+      { name: "Jeera Basmati Rice", category: "Rice & Breads", price: 180, description: "Fragrant long-grain basmati rice tempered with ghee and cumin seeds." },
+      { name: "Butter Butter Naan", category: "Rice & Breads", price: 70, description: "Leavened clay-oven flatbread topped with premium salted Amul butter." },
+      { name: "Saffron Kheer Royal", category: "Desserts", price: 190, description: "Traditional slow-reduced milk pudding flavored with Kashmiri saffron, almonds, and pistachios." },
+      { name: "Premium Hot Chocolate Brownie", category: "Desserts", price: 240, description: "Warm fudge chocolate brownie served with a scoop of vanilla bean ice cream." },
+      { name: "Fresh Mint Virgin Mojito", category: "Beverages", price: 160, description: "Crushed mint leaves, fresh lime wedges, and simple syrup topped with sparkling soda." },
+      { name: "Chilled Mango Lassi", category: "Beverages", price: 140, description: "Thick yogurt beverage blended with sweet Alphonso mango pulp." }
+    ];
+
+    // ASMR PAGE FLIP AUDIO SYNTHESIZER
     function playAsmrFlipSound() {
       try {
         const AudioContext = window.AudioContext || window.webkitAudioContext;
@@ -274,7 +290,6 @@ HOTEL SAPPHIRE
         if (!urlParams.get('table')) window.history.replaceState(null, '', `?table=${table}`);
         
         document.getElementById('lobby-screen').classList.add('hidden');
-        document.getElementById('session-badge');
         document.getElementById('session-label').textContent = table.startsWith('R') ? `Dining Table ${table}` : `Room Service ${table}`;
         syncDatabaseSession();
       } else {
@@ -359,24 +374,32 @@ HOTEL SAPPHIRE
       document.getElementById('running-total').textContent = `₹${parseFloat(activeSession.total_amount || 0).toFixed(2)}`;
     }
 
-    // FETCH GOOGLE SHEETS DISH DATA (UPDATED URL)
+    // FETCH GOOGLE SHEETS DISH DATA (UPDATED GOOGLE SHEET)
     async function loadGoogleSheetsMenu() {
       const csvUrl = "https://docs.google.com/spreadsheets/d/1hVmc77zQ-Q_dzAPnO0nznpmafeK-3hgvl43A-slyMkY/export?format=csv";
       try {
         const res = await fetch(csvUrl);
+        if (!res.ok) throw new Error("Fetch failed");
         const text = await res.text();
         parseAndCompileMenu(text);
       } catch (err) {
-        parseAndCompileMenu("Name,Category,Price,Description\nHara Bhara Kebab,Starters,220,Crispy spinach & potato kebab\nSapphire Dal Makhani,Main Course,310,Luxurious butter-cooked dal");
+        console.warn("Using high-fidelity preloaded menu as sheets resource is loading or offline.", err);
+        menuItems = BACKUP_MENU;
+        buildBookPages();
       }
     }
 
     function parseAndCompileMenu(text) {
       const lines = text.split('\n');
-      if (lines.length < 2) return;
+      if (lines.length < 2) {
+        menuItems = BACKUP_MENU;
+        buildBookPages();
+        return;
+      }
+      
       const headers = lines[0].split(',').map(h => h.trim().toLowerCase().replace(/^"|"$/g, ''));
       
-      menuItems = [];
+      let parsedItems = [];
       for (let i = 1; i < lines.length; i++) {
         let line = lines[i];
         if (!line.trim()) continue;
@@ -395,10 +418,16 @@ HOTEL SAPPHIRE
         headers.forEach((h, idx) => row[h] = values[idx] || '');
         let name = row.name || row.item || '';
         let price = parseFloat(row.price || 0);
-        let category = row.category || 'Main Dishes';
+        let category = row.category || 'Main Course';
         let desc = row.description || '';
 
-        if (name && price > 0) menuItems.push({ name, price, category, description: desc });
+        if (name && price > 0) parsedItems.push({ name, price, category, description: desc });
+      }
+
+      if (parsedItems.length > 0) {
+        menuItems = parsedItems;
+      } else {
+        menuItems = BACKUP_MENU;
       }
 
       buildBookPages();
@@ -657,8 +686,13 @@ HOTEL SAPPHIRE
     }, 4000);
 
     window.addEventListener('DOMContentLoaded', () => {
+      // First load the premium backup menu so user is never stuck
+      menuItems = BACKUP_MENU;
+      buildBookPages();
+      
       initSession();
       loadGoogleSheetsMenu();
+      
       const saved = localStorage.getItem(`sapphire_cart_${currentTable}`);
       if (saved) { try { cart = JSON.parse(saved); updateBadgeCount(); } catch(e){} }
     });
