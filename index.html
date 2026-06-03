@@ -5,6 +5,7 @@ HOTEL SAPPHIRE
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Hotel Sapphire - Royal Book Menu</title>
+  <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
@@ -19,7 +20,8 @@ HOTEL SAPPHIRE
       }
     }
   </script>
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Courier+Prime:wght@400;700&display=swap" rel="stylesheet">
   <style>
     body {
       font-family: 'Plus Jakarta Sans', sans-serif;
@@ -70,6 +72,7 @@ HOTEL SAPPHIRE
 </head>
 <body class="bg-gray-100 text-gray-800 h-screen w-screen flex flex-col select-none touch-none">
 
+  <!-- TOP AGENCY PROMOTIONAL BANNER -->
   <div class="bg-royalBlue text-white text-center py-1.5 text-[11px] font-bold tracking-widest uppercase border-b border-accentGold/30 z-50 shrink-0">
     <a href="https://karan-digital-menu-agency.vercel.app/#contact" target="_blank" class="hover:text-accentGold transition-colors duration-200 flex items-center justify-center gap-1">
       Created By. KARAN DIGITAL MENU AGENCY 
@@ -79,6 +82,7 @@ HOTEL SAPPHIRE
     </a>
   </div>
 
+  <!-- HOTEL APP BAR -->
   <header class="bg-white border-b border-gray-100 shadow-xs sticky top-0 z-40 shrink-0">
     <div class="max-w-6xl mx-auto px-4 py-2 flex items-center justify-between">
       <div class="flex items-center gap-2">
@@ -89,6 +93,7 @@ HOTEL SAPPHIRE
         </div>
       </div>
 
+      <!-- Action Elements -->
       <div class="flex items-center gap-2">
         <button onclick="toggleCart(true)" class="relative bg-royalBlue text-white px-3 py-2 rounded-xl flex items-center gap-1.5 hover:bg-royalBlue-dark transition text-xs font-semibold shadow-xs">
           <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -100,6 +105,7 @@ HOTEL SAPPHIRE
     </div>
   </header>
 
+  <!-- LIVE FIXED STATUS STRIP -->
   <div id="active-status-bar" class="hidden bg-white border-b border-gray-150 px-4 py-2 shrink-0">
     <div class="max-w-6xl mx-auto flex items-center justify-between gap-2">
       <div class="flex items-center gap-2 text-xs">
@@ -118,32 +124,36 @@ HOTEL SAPPHIRE
     </div>
   </div>
 
+  <!-- BOOK CORE VIEWPORT CONTAINER -->
   <div class="flex-grow w-full max-w-2xl mx-auto p-4 relative flex flex-col justify-between overflow-hidden">
     
+    <!-- Instruction / Navigation hint header -->
     <div class="flex justify-between items-center text-xs text-gray-400 font-medium px-2 shrink-0 mb-1">
       <span>← Swipe Left for Prev</span>
       <span class="text-royalBlue font-semibold bg-gray-200/60 px-2 py-0.5 rounded-full" id="page-counter-badge">Page 1 / 1</span>
       <span>Swipe Right for Next →</span>
     </div>
 
+    <!-- The 3D Book Base Container -->
     <div class="flex-grow w-full relative book-container bg-white rounded-3xl shadow-xl border border-gray-200/60 overflow-hidden" id="book-frame">
       <div class="absolute inset-0 flex items-center justify-center text-gray-400 font-serif text-lg" id="book-loading">
         Compiling Royal Culinary Menu...
       </div>
     </div>
 
+    <!-- FIXED MANUAL NAVIGATION CONTROLS BAR -->
     <div class="flex items-center justify-between gap-4 mt-3 shrink-0 px-1">
       <button onclick="prevPage()" class="bg-white border border-gray-200 hover:border-royalBlue text-royalBlue px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1 shadow-2xs active:scale-95">
         &larr; Previous Page
       </button>
-      <div class="flex gap-1 items-center" id="dots-indicator-container">
-        </div>
+      <div class="flex gap-1 items-center" id="dots-indicator-container"></div>
       <button onclick="nextPage()" class="bg-royalGreen text-white px-5 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1 shadow-xs hover:bg-royalGreen-dark active:scale-95">
         Next Page &rarr;
       </button>
     </div>
   </div>
 
+  <!-- SELECTION LOBBY OVERLAY -->
   <div id="lobby-screen" class="hidden fixed inset-0 z-50 bg-royalBlue-dark bg-opacity-95 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
     <div class="bg-white rounded-3xl p-6 max-w-md w-full text-center shadow-2xl border border-accentGold/20">
       <img src="https://i.ibb.co/N2d75D6f/1779955616222.png" alt="Hotel Sapphire" class="h-14 w-14 mx-auto mb-2">
@@ -153,6 +163,7 @@ HOTEL SAPPHIRE
     </div>
   </div>
 
+  <!-- CART SIDE DRAWER -->
   <div id="cart-drawer" class="fixed inset-0 z-50 overflow-hidden hidden" role="dialog" aria-modal="true">
     <div class="absolute inset-0 overflow-hidden">
       <div onclick="toggleCart(false)" class="absolute inset-0 bg-black/60 backdrop-blur-xs transition-opacity"></div>
@@ -174,6 +185,7 @@ HOTEL SAPPHIRE
     </div>
   </div>
 
+  <!-- WAITER CALLED BILL MODAL -->
   <div id="waiter-modal" class="hidden fixed inset-0 z-50 bg-black/70 backdrop-blur-xs flex items-center justify-center p-4">
     <div class="bg-white rounded-3xl p-6 max-w-xs w-full shadow-2xl border border-accentGold text-center">
       <h3 class="text-xl font-bold font-serif text-royalBlue mb-1">Bill Dispatched!</h3>
@@ -186,6 +198,7 @@ HOTEL SAPPHIRE
     </div>
   </div>
 
+  <!-- SCRIPT LOGIC ENGINE -->
   <script>
     const SUPABASE_URL = "https://hdwicmptcyclrvjtujce.supabase.co/rest/v1/";
     const SUPABASE_KEY = "sb_publishable_rvGrIaZMdJCI13W9wzZmMg_t1D0aRUr";
@@ -197,15 +210,14 @@ HOTEL SAPPHIRE
     let totalBookPages = 0;
     let activePageIndex = 0;
 
-    // HIGH-QUALITY ASMR SYNTHETIC AUDIO ENGINE (Instant Load, No External Audio File Failures)
+    // HIGH-QUALITY ASMR SYNTHETIC AUDIO ENGINE
     function playAsmrFlipSound() {
       try {
         const AudioContext = window.AudioContext || window.webkitAudioContext;
         if (!AudioContext) return;
         const ctx = new AudioContext();
         
-        // Channel 1: High-frequency friction whisper
-        const bufferSize = ctx.sampleRate * 0.18; // Short crisp duration
+        const bufferSize = ctx.sampleRate * 0.18;
         const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
         const data = buffer.getChannelData(0);
         for (let i = 0; i < bufferSize; i++) {
@@ -219,7 +231,6 @@ HOTEL SAPPHIRE
         filter.type = 'bandpass';
         filter.frequency.setValueAtTime(1400, ctx.currentTime);
         filter.Q.setValueAtTime(4, ctx.currentTime);
-        // Fade out frequencies rapidly simulating sweeping paper friction
         filter.frequency.exponentialRampToValueAtTime(300, ctx.currentTime + 0.15);
 
         const gainNode = ctx.createGain();
@@ -230,7 +241,6 @@ HOTEL SAPPHIRE
         filter.connect(gainNode);
         gainNode.connect(ctx.destination);
         
-        // Channel 2: Soft low-frequency page snap crisp sound
         const osc = ctx.createOscillator();
         const oscGain = ctx.createGain();
         osc.type = 'sine';
@@ -248,7 +258,7 @@ HOTEL SAPPHIRE
         noiseNode.stop(ctx.currentTime + 0.18);
         osc.stop(ctx.currentTime + 0.08);
       } catch (err) {
-        console.warn("AudioContext initialization blocked by browser permission.", err);
+        console.warn("AudioContext blocked or uninitialized.", err);
       }
     }
 
@@ -264,6 +274,7 @@ HOTEL SAPPHIRE
         if (!urlParams.get('table')) window.history.replaceState(null, '', `?table=${table}`);
         
         document.getElementById('lobby-screen').classList.add('hidden');
+        document.getElementById('session-badge');
         document.getElementById('session-label').textContent = table.startsWith('R') ? `Dining Table ${table}` : `Room Service ${table}`;
         syncDatabaseSession();
       } else {
@@ -277,7 +288,6 @@ HOTEL SAPPHIRE
       lobby.classList.remove('hidden');
       grid.innerHTML = '';
       
-      // Build options
       for (let i = 1; i <= 10; i++) {
         ['R', 'T'].forEach(prefix => {
           grid.innerHTML += `
@@ -289,7 +299,6 @@ HOTEL SAPPHIRE
       }
     }
 
-    // INTERACT WITH DATABASE SERVER
     async function dbCall(endpoint, method = 'GET', body = null) {
       try {
         const config = {
@@ -350,16 +359,15 @@ HOTEL SAPPHIRE
       document.getElementById('running-total').textContent = `₹${parseFloat(activeSession.total_amount || 0).toFixed(2)}`;
     }
 
-    // FETCH GOOGLE SHEETS DISH DATA
+    // FETCH GOOGLE SHEETS DISH DATA (UPDATED URL)
     async function loadGoogleSheetsMenu() {
-      const csvUrl = "https://docs.google.com/spreadsheets/d/1_YNC57MPCAUlxlNydQzcrgKPZwBI0CB12awVte6u4_A/export?format=csv";
+      const csvUrl = "https://docs.google.com/spreadsheets/d/1hVmc77zQ-Q_dzAPnO0nznpmafeK-3hgvl43A-slyMkY/export?format=csv";
       try {
         const res = await fetch(csvUrl);
         const text = await res.text();
         parseAndCompileMenu(text);
       } catch (err) {
-        // Safe hardcoded layout if blocked by network
-        parseAndCompileMenu("Name,Category,Price,Description\nHara Bhara Kebab,Starters,220,Crispy traditional kebab\nSapphire Dal Makhani,Main Course,310,Creamy slow-cooked luxury dal");
+        parseAndCompileMenu("Name,Category,Price,Description\nHara Bhara Kebab,Starters,220,Crispy spinach & potato kebab\nSapphire Dal Makhani,Main Course,310,Luxurious butter-cooked dal");
       }
     }
 
@@ -396,12 +404,10 @@ HOTEL SAPPHIRE
       buildBookPages();
     }
 
-    // SEGMENT DISHES DIRECTLY INTO FLIP PAGES
     function buildBookPages() {
       const frame = document.getElementById('book-frame');
       frame.innerHTML = '';
 
-      // Group products into blocks of 3 items per book page to prevent layout overflow
       const itemsPerPage = 3;
       const categories = [...new Set(menuItems.map(m => m.category))];
       let pageCounter = 1;
@@ -410,7 +416,7 @@ HOTEL SAPPHIRE
       let pagesHTML = `
         <div class="menu-page page-active p-8 flex flex-col justify-between bg-white" data-page-index="0">
           <div class="text-center my-auto space-y-4">
-            <img src="https://i.ibb.co/N2d75D6f/1779955616222.png" class="h-24 w-24 mx-auto object-contain animate-pulse">
+            <img src="https://i.ibb.co/N2d75D6f/1779955616222.png" class="h-24 w-24 mx-auto object-contain">
             <h2 class="text-4xl font-serif font-extrabold text-royalBlue">Hotel Sapphire</h2>
             <div class="w-16 h-0.5 bg-accentGold mx-auto"></div>
             <p class="text-xs uppercase tracking-widest text-gray-400 font-semibold">The Grand Culinary Book Menu</p>
@@ -467,7 +473,7 @@ HOTEL SAPPHIRE
                 <div class="space-y-1">${itemsListHTML}</div>
               </div>
               <div class="text-[10px] text-center text-gray-400 font-serif border-t border-gray-50 pt-2">
-                Hotel Sapphire Room Service &amp; Fine Dine
+                Hotel Sapphire Fine Dine
               </div>
             </div>
           `;
@@ -481,12 +487,11 @@ HOTEL SAPPHIRE
       updateNavigationDots();
     }
 
-    // PAGE FLIPPING SEQUENTIAL DRIVERS
     function renderPageFlipView() {
       const pages = document.querySelectorAll('.menu-page');
       pages.forEach(p => {
         const idx = parseInt(p.getAttribute('data-page-index'));
-        p.className = "menu-page"; // Reset classes
+        p.className = "menu-page";
         
         if (idx === activePageIndex) {
           p.classList.add('page-active');
@@ -520,7 +525,6 @@ HOTEL SAPPHIRE
     function updateNavigationDots() {
       const container = document.getElementById('dots-indicator-container');
       container.innerHTML = '';
-      // Only render simple scannable dots if pages count under 8 to prevent UI crowded text lines
       if(totalBookPages > 8) return;
       for (let i = 0; i < totalBookPages; i++) {
         const isActive = i === activePageIndex;
@@ -528,7 +532,7 @@ HOTEL SAPPHIRE
       }
     }
 
-    // CROSS-PLATFORM HARDWARE MULTI-TOUCH SWIPE CAPTURE DRIVER (iOS, Android, Windows Mobile)
+    // MULTI-TOUCH SWIPE CAPTURE DRIVER (iOS, Android, Windows)
     let touchStartX = 0;
     let touchStartY = 0;
     const bookFrame = document.getElementById('book-frame');
@@ -542,17 +546,15 @@ HOTEL SAPPHIRE
       const diffX = e.changedTouches[0].screenX - touchStartX;
       const diffY = e.changedTouches[0].screenY - touchStartY;
       
-      // Ensure horizontal swipe is dominant and significant
       if (Math.abs(diffX) > 40 && Math.abs(diffY) < 60) {
         if (diffX > 0) {
-          prevPage(); // Swipe Left-to-Right turning back
+          prevPage();
         } else {
-          nextPage(); // Swipe Right-to-Left turning forward
+          nextPage();
         }
       }
     }, { passive: true });
 
-    // BASKET OPERATIONS
     function addFromBook(encName, price) {
       const name = decodeURIComponent(encName);
       const exist = cart.find(c => c.name === name);
@@ -645,7 +647,6 @@ HOTEL SAPPHIRE
       updateStatusStripUI();
     }
 
-    // BACKGROUND POLLING SYNC FOR COMPLETED SESSIONS
     setInterval(async () => {
       if (!activeSession) return;
       let check = await dbCall(`orders?id=eq.${activeSession.id}`, 'GET');
